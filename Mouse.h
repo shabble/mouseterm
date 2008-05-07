@@ -39,7 +39,7 @@ typedef enum
 // Returns a control code for a mouse movement (from iTerm)
 inline NSData* mousePress(MouseButton button, unsigned int modflag, int x, int y)
 {
-    char buf[MOUSE_RESPONSE_LEN];
+    char buf[MOUSE_RESPONSE_LEN + 1];
     char cb;
 
     cb = button % 3;
