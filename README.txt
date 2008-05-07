@@ -32,4 +32,9 @@ Download the official development repository using [Mercurial][4]:
 Run `make` to compile the plugin, and `make install` to install it into
 your home directory's SIMBL plugins folder.
 
+[JRSwizzle][5] and mouse reporting code from [iTerm][6] are used in
+MouseTerm.
+
 [4]: http://www.selenic.com/mercurial/
+[5]: http://rentzsch.com/trac/wiki/JRSwizzle
+[6]: http://iterm.sourceforge.net/
