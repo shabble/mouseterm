@@ -3,6 +3,8 @@
 
 #import "JRSwizzle.h"
 
+#import "MouseTerm.h"
+
 // Dummy implementations to fix 64-bit linking
 @implementation TTView
 - (Position) displayPositionForPoint: (NSPoint) point {}
@@ -88,7 +90,7 @@ NSMutableDictionary* MouseTerm_ivars = nil;
 
     if (![cl1 jr_swizzleMethod: @selector(shellDidReceiveData:)
               withMethod: @selector(MouseTerm_shellDidReceiveData:)
-              error: nill])
+              error: nil])
     {
         NSLog(@"[MouseTerm] ERROR: Failed to swizzle "
                "[TTTabController shellDidReceiveData:]");

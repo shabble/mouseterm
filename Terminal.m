@@ -20,10 +20,10 @@
     const char* chars = [data bytes];
     const char* pos;
 
-    if (pos = strnstr(chars, TOGGLE_MOUSE, length))
+    if ((pos = strnstr(chars, TOGGLE_MOUSE, length)))
     {
         // Is there enough data in the buffer for the next two characters?
-        if ([data length] >= (NSUInteger) &pos[TOGGLE_MOUSE_LEN] - chars + 2)
+        if ([data length] >= (NSUInteger) (&pos[TOGGLE_MOUSE_LEN] - chars) + 2)
         {
             char mode = pos[TOGGLE_MOUSE_LEN];
             char flag = pos[TOGGLE_MOUSE_LEN + 1];

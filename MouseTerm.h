@@ -16,4 +16,4 @@ typedef struct
 @end
 
 // Custom instance variables
-extern NSMutableDictionary* MouseTerm_ivars = nil;
+extern NSMutableDictionary* MouseTerm_ivars;
