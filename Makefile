@@ -1,5 +1,5 @@
 CFLAGS=-bundle -framework Cocoa
-OBJECTS=JRSwizzle.m MouseTerm.m
+OBJECTS=JRSwizzle.m MouseTerm.m Terminal.m
 TARGET=MouseTerm.bundle/Contents/MacOS/MouseTerm
 
 all: build
