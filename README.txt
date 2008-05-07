@@ -22,19 +22,41 @@ Download
 [3]: http://bitheap.org/mouseterm/MouseTerm.zip
 
 
+Status
+------
+
+MouseTerm is currently alpha quality software. Some features have not yet
+been implemented, and there may be bugs in the current implementation.
+
+What works:
+
+* Mouse scroll wheel reporting.
+
+What's being worked on:
+
+* Reporting for other mouse buttons.
+* Simulated mouse wheel scrolling for programs like `less` (i.e. any
+  fullscreen program that uses [application cursor key mode][4]).
+* `xterm` "hilite" mouse tracking mode.
+* A preferences dialog and terminal profile integration.
+
+
+[4]: http://the.earth.li/~sgtatham/putty/0.60/htmldoc/Chapter4.html#config-appcursor
+
+
 Development
 -----------
 
-Download the official development repository using [Mercurial][4]:
+Download the official development repository using [Mercurial][5]:
 
     hg clone http://bitheap.org/hg/mouseterm/
 
 Run `make` to compile the plugin, and `make install` to install it into
 your home directory's SIMBL plugins folder.
 
-[JRSwizzle][5] and mouse reporting code from [iTerm][6] are used in
+[JRSwizzle][6] and mouse reporting code from [iTerm][7] are used in
 MouseTerm.
 
-[4]: http://www.selenic.com/mercurial/
-[5]: http://rentzsch.com/trac/wiki/JRSwizzle
-[6]: http://iterm.sourceforge.net/
+[5]: http://www.selenic.com/mercurial/
+[6]: http://rentzsch.com/trac/wiki/JRSwizzle
+[7]: http://iterm.sourceforge.net/
