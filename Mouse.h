@@ -44,7 +44,7 @@ typedef enum
 
 // X11 mouse reporting responses
 #define MOUSE_RESPONSE "\033[M%c%c%c"
-#define MOUSE_RESPONSE_LEN (sizeof(MOUSE_RESPONSE) - 1)
+#define MOUSE_RESPONSE_LEN 6
 
 // Returns a control code for a mouse movement (from iTerm)
 inline NSData* mousePress(MouseButton button, unsigned int modflag, int x, int y)
@@ -62,7 +62,7 @@ inline NSData* mousePress(MouseButton button, unsigned int modflag, int x, int y
     if (modflag & NSAlternateKeyMask) // Alt/option
         cb += 8;
 
-    snprintf(buf, MOUSE_RESPONSE_LEN, MOUSE_RESPONSE, 32 + cb, 32 + x + 1,
+    snprintf(buf, sizeof(buf), MOUSE_RESPONSE, 32 + cb, 32 + x + 1,
              32 + y + 1);
     return [NSData dataWithBytes: buf length: MOUSE_RESPONSE_LEN];
 }
