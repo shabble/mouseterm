@@ -4,9 +4,12 @@ TARGET=MouseTerm.bundle/Contents/MacOS/MouseTerm
 
 all: build
 
+buildnative:
+	mkdir -p MouseTerm.bundle/Contents/MacOS
+	gcc $(CFLAGS) -arch i386 -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET)
+	cp Info.plist MouseTerm.bundle/Contents
 build:
 	mkdir -p MouseTerm.bundle/Contents/MacOS
-#	gcc $(CFLAGS) -arch i386 -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET)
 	gcc $(CFLAGS) -arch i386 -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET).i386
 	gcc $(CFLAGS) -arch ppc -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET).ppc
 	gcc $(CFLAGS) -arch x86_64 -mmacosx-version-min=10.5 $(OBJECTS) -o $(TARGET).x86_64

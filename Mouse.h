@@ -38,8 +38,8 @@ typedef enum
     MOUSE_BUTTON2,
     MOUSE_BUTTON3,
     MOUSE_RELEASE,
-    MOUSE_WHEEL_UP,
-    MOUSE_WHEEL_DOWN
+    MOUSE_WHEEL_DOWN,
+    MOUSE_WHEEL_UP
 } MouseButton;
 
 // X11 mouse reporting responses
