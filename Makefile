@@ -6,7 +6,7 @@ all: build
 
 buildnative:
 	mkdir -p MouseTerm.bundle/Contents/MacOS
-	gcc $(CFLAGS) -arch i386 -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET)
+	gcc $(CFLAGS) $(OBJECTS) -o $(TARGET)
 	cp Info.plist MouseTerm.bundle/Contents
 build:
 	mkdir -p MouseTerm.bundle/Contents/MacOS
