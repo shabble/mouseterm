@@ -18,8 +18,18 @@ typedef enum
 #define DOWN_ARROW_APP "\033OB"
 #define ARROW_LEN (sizeof(UP_ARROW) - 1)
 
-#define TOGGLE_MOUSE "\033[?100" // Excludes mode and toggle flag
+// Mode control codes
+
+#define TOGGLE_ON 'h'
+#define TOGGLE_OFF 'l'
+
+// Excludes mode and toggle flag
+#define TOGGLE_MOUSE "\033[?100"
 #define TOGGLE_MOUSE_LEN (sizeof(TOGGLE_MOUSE) - 1)
+
+// Excludes toggle flag
+#define TOGGLE_CURSOR_KEYS "\033[?1"
+#define TOGGLE_CURSOR_KEYS_LEN (sizeof(TOGGLE_CURSOR_KEYS) - 1)
 
 // X11 mouse button values
 typedef enum

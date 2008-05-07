@@ -20,10 +20,11 @@
     const char* chars = [data bytes];
     const char* pos;
 
+    // Handle mouse reporting toggle
     if ((pos = strnstr(chars, TOGGLE_MOUSE, length)))
     {
         // Is there enough data in the buffer for the next two characters?
-        if ([data length] >= (NSUInteger) (&pos[TOGGLE_MOUSE_LEN] - chars) + 2)
+        if (length >= (NSUInteger) (&pos[TOGGLE_MOUSE_LEN] - chars) + 2)
         {
             char mode = pos[TOGGLE_MOUSE_LEN];
             char flag = pos[TOGGLE_MOUSE_LEN + 1];
@@ -44,15 +45,45 @@
                 mouseMode = ALL_MODE;
                 break;
             }
-            
+
             if (mouseMode != NO_MODE)
             {
-                if (flag == 'h')
+                switch (flag)
+                {
+                case TOGGLE_ON:
                     SET_IVAR([self view], @"mouseMode",
                              [NSNumber numberWithInt: mouseMode]);
-                else if (flag == 'l')
+                    break;
+                case TOGGLE_OFF:
                     SET_IVAR([self view], @"mouseMode",
                              [NSNumber numberWithInt: NO_MODE]);
+                    break;
+                }
+            }
+        }
+    }
+    // Handle application cursor keys mode toggle
+    //
+    // Note: This information does exist on the TTVT100Emulator object
+    // already, but it's in private member data, and there's no method
+    // that returns any data from it. That means we have to look for it
+    // ourselves.
+    else if ((pos = strnstr(chars, TOGGLE_CURSOR_KEYS, length)))
+    {
+        // Is there enough data in the buffer for the next character?
+        if (length >= (NSUInteger) (&pos[TOGGLE_CURSOR_KEYS_LEN] - chars) + 1)
+        {
+            char flag = pos[TOGGLE_CURSOR_KEYS_LEN];
+            switch (flag)
+            {
+            case TOGGLE_ON:
+                SET_IVAR([self view], @"appCursorMode",
+                         [NSNumber numberWithBool: YES]);
+                break;
+            case TOGGLE_OFF:
+                SET_IVAR([self view], @"appCursorMode",
+                         [NSNumber numberWithBool: NO]);
+                break;
             }
         }
     }
@@ -105,45 +136,28 @@
 // Intercepts all scroll wheel movements (one wheel "tick" at a time)
 - (void) MouseTerm_scrollWheel: (NSEvent*) event
 {
-    NSPoint windowloc = [event locationInWindow];
-    NSPoint viewloc = [self convertPoint: windowloc fromView: nil];
-    NSRect visible = [[self enclosingScrollView] documentVisibleRect];
-    NSUInteger modflags = [event modifierFlags];
-
-    // FIXME: Is comparing viewloc.y and visible.origin.y necessary?
-    if (viewloc.y <= visible.origin.y || modflags & NSAlternateKeyMask)
+    // Don't handle any scrolling if alt/option is pressed
+    if ([event modifierFlags] & NSAlternateKeyMask)
         goto ignored;
-
-    NSObject* logicalScreen = [self logicalScreen];
 
     switch ([(NSNumber*) IVAR(self, @"mouseMode") intValue])
     {
         case NO_MODE:
         {
-            // FIXME: This screws up screen. Should probably take a closer
-            // look at http://bugzilla.gnome.org/show_bug.cgi?id=424184
-            //
-            // Maybe it should only be used in application keypad mode?
-#if 0
-            if ((BOOL) [logicalScreen isAlternateScreenActive])
+            if ((BOOL) [[self logicalScreen] isAlternateScreenActive] &&
+                [IVAR(self, @"appCursorMode") boolValue])
             {
                 // FIXME: Need some way to account for scrolling acceleration
-                const char* data;
-                if (is application mode ...)
-                    data = [event deltaY] > 0 ? UP_ARROW_APP UP_ARROW_APP :
-                           DOWN_ARROW_APP DOWN_ARROW_APP;
-                else
-                    data = [event deltaY] > 0 ? UP_ARROW UP_ARROW :
-                           DOWN_ARROW DOWN_ARROW;
-                NSData* data = [NSData dataWithBytes: data
+                const char* chars = [event deltaY] > 0 ?
+                                    UP_ARROW_APP UP_ARROW_APP :
+                                    DOWN_ARROW_APP DOWN_ARROW_APP;
+                NSData* data = [NSData dataWithBytes: chars
                                        length: ARROW_LEN * 2];
                 [(NSObject*) [[self controller] shell] writeData: data];
                 goto handled;
             }
             else
                 goto ignored;
-#endif
-            goto ignored;
         }
         // FIXME: Unhandled at the moment
         case HILITE_MODE:
@@ -153,6 +167,8 @@
         case ALL_MODE:
         {
             int button = [event deltaY] > 0 ? MOUSE_WHEEL_UP : MOUSE_WHEEL_DOWN;
+            NSPoint viewloc = [self convertPoint: [event locationInWindow]
+                                    fromView: nil];
             Position pos = [self displayPositionForPoint: viewloc];
             [(NSObject*) [[self controller] shell] writeData: mousePress(
                                 button, [event modifierFlags],
@@ -173,6 +189,7 @@ ignored:
     [MouseTerm_ivars setObject: [NSMutableDictionary dictionary]
                      forKey: [NSValue valueWithPointer: self]];
     SET_IVAR(self, @"mouseMode", [NSNumber numberWithInt: NO_MODE]);
+    SET_IVAR(self, @"appCursorMode", [NSNumber numberWithBool: NO]);
     return [self MouseTerm_initWithFrame: frame];
 }
 
