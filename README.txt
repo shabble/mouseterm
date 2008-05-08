@@ -1,5 +1,5 @@
 MouseTerm
-==========
+=========
 
 MouseTerm is a [SIMBL][1] plugin for Mac OS X's [Terminal.app][2] that
 passes mouse events to the terminal, allowing you to use mouse shortcuts

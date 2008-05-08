@@ -21,6 +21,7 @@ NSMutableDictionary* MouseTerm_ivars = nil;
 @implementation MouseTerm
 
 // FIXME: Revert swizzled methods when a swizzle fails
+// FIXME: Check for the presence of ALL methods used
 + (void) load
 {
     Class cl1 = NSClassFromString(@"TTTabController");
