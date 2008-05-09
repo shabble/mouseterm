@@ -157,11 +157,11 @@
                 // depending on the architecture. Upcasting floats to doubles
                 // seems like an easier compromise than detecting what the
                 // type really is.
-                double lines = [event deltaY];
+                double delta = [event deltaY];
 
-                if (copysignf(1.0, lines) == -1.0)
+                if (copysignf(1.0, delta) == -1.0)
                 {
-                    lines = labs(lines);
+                    delta = fabs(delta);
                     data = [NSData dataWithBytes: DOWN_ARROW_APP
                                    length: ARROW_LEN];
                 }
@@ -171,9 +171,9 @@
                                    length: ARROW_LEN];
                 }
 
-                lines = round(lines) + 1.0;
                 NSObject* shell = [[self controller] shell];
                 long i;
+                long lines = lround(delta) + 1;
                 for (i = 0; i < lines; ++i)
                     [shell writeData: data];
 
@@ -189,13 +189,28 @@
         case BUTTON_MODE:
         case ALL_MODE:
         {
-            int button = [event deltaY] > 0 ? MOUSE_WHEEL_UP : MOUSE_WHEEL_DOWN;
+            MouseButton button;
+            double delta = [event deltaY];
+            if (copysignf(1.0, delta) == -1.0)
+            {
+                delta = fabs(delta);
+                button = MOUSE_WHEEL_DOWN;
+            }
+            else
+                button = MOUSE_WHEEL_UP;
+
             NSPoint viewloc = [self convertPoint: [event locationInWindow]
                                     fromView: nil];
             Position pos = [self displayPositionForPoint: viewloc];
-            [(NSObject*) [[self controller] shell] writeData: mousePress(
-                                button, [event modifierFlags],
-                                pos.x, pos.y)];
+            NSData* data;
+            unsigned int modflag = [event modifierFlags];
+
+            NSObject* shell = [[self controller] shell];
+            long i;
+            long lines = lround(delta) + 1;
+            for (i = 0; i < lines; ++i)
+                [shell writeData: mousePress(button, modflag, pos.x, pos.y)];
+
             goto handled;
         }
     }
