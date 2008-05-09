@@ -53,10 +53,14 @@ inline NSData* mousePress(MouseButton button, unsigned int modflag,
     char buf[MOUSE_RESPONSE_LEN + 1];
     char cb;
 
-    // FIXME: xterm returns ` for up, while this does b
     cb = button % 3;
-    if (button > MOUSE_RELEASE) // Wheel movement
+
+    // FIXME: This can't be right...
+    if (button == MOUSE_WHEEL_DOWN)
         cb += 64;
+    else if (button == MOUSE_WHEEL_UP)
+        cb += 62;
+
     if (modflag & NSControlKeyMask)
         cb += 16;
     if (modflag & NSShiftKeyMask)
