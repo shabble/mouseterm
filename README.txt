@@ -5,10 +5,9 @@ MouseTerm is a [SIMBL][1] plugin for Mac OS X's [Terminal.app][2] that
 passes mouse events to the terminal, allowing you to use mouse shortcuts
 within applications that support them.
 
+No configuration is necessary, just open the `.dmg` file, run `Install`, and
+restart Terminal.app. To uninstall, simply run `Uninstall` from the `.dmg`.
 No configuration is necessary, just install SIMBL and move
-`MouseTerm.bundle` to `Library/Application Support/SIMBL/Plugins` in
-your home folder and restart Terminal.app. To uninstall the plugin, simply
-delete the plugin's folder.
 
 [1]: http://www.culater.net/software/SIMBL/SIMBL.php
 [2]: http://www.apple.com/macosx/technology/unix.html
@@ -48,7 +47,7 @@ Frequently Asked Questions
 
 > What programs can I use the mouse in?
 
-This varies widely and depends on the specific program `less`, [Emacs][5],
+This varies widely and depends on the specific program. `less`, [Emacs][5],
 and [Vim][6] are good places to test out mouse reporting.
 
 > How do I enable mouse reporting in Vim?
