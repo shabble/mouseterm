@@ -53,22 +53,27 @@ inline NSData* mousePress(MouseButton button, unsigned int modflag,
     char buf[MOUSE_RESPONSE_LEN + 1];
     char cb;
 
-    cb = button % 3;
+    switch (button)
+    {
+    case MOUSE_WHEEL_DOWN:
+        cb = 65;
+        break;
+    case MOUSE_WHEEL_UP:
+        cb = 64;
+        break;
+    default:
+        cb = button % 3;
+    }
+    cb += 32;
 
-    // FIXME: This can't be right...
-    if (button == MOUSE_WHEEL_DOWN)
-        cb += 64;
-    else if (button == MOUSE_WHEEL_UP)
-        cb += 62;
-
-    if (modflag & NSControlKeyMask)
-        cb += 16;
     if (modflag & NSShiftKeyMask)
-        cb += 4;
+        cb |= 4;
     if (modflag & NSAlternateKeyMask) // Alt/option
-        cb += 8;
+        cb |= 8;
+    if (modflag & NSControlKeyMask)
+        cb |= 16;
 
-    snprintf(buf, sizeof(buf), MOUSE_RESPONSE, 32 + cb, 32 + x + 1,
+    snprintf(buf, sizeof(buf), MOUSE_RESPONSE, cb, 32 + x + 1,
              32 + y + 1);
     return [NSData dataWithBytes: buf length: MOUSE_RESPONSE_LEN];
 }
