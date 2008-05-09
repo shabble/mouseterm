@@ -1,4 +1,6 @@
 #import <Cocoa/Cocoa.h>
+#import <math.h>
+#import <alloca.h>
 
 #import "MouseTerm.h"
 #import "Mouse.h"
@@ -137,6 +139,7 @@
 - (void) MouseTerm_scrollWheel: (NSEvent*) event
 {
     // Don't handle any scrolling if alt/option is pressed
+    // FIXME: Ignore event if scrollbar isn't at the bottom of the view
     if ([event modifierFlags] & NSAlternateKeyMask)
         goto ignored;
 
@@ -147,13 +150,29 @@
             if ((BOOL) [[self logicalScreen] isAlternateScreenActive] &&
                 [IVAR(self, @"appCursorMode") boolValue])
             {
-                // FIXME: Need some way to account for scrolling acceleration
-                const char* chars = [event deltaY] > 0 ?
-                                    UP_ARROW_APP UP_ARROW_APP :
-                                    DOWN_ARROW_APP DOWN_ARROW_APP;
-                NSData* data = [NSData dataWithBytes: chars
-                                       length: ARROW_LEN * 2];
-                [(NSObject*) [[self controller] shell] writeData: data];
+                // Calculate how many lines to scroll by (takes acceleration
+                // into account)
+                NSData* data;
+                double lines = [event deltaY];
+
+                if (copysignf(1.0, lines) == -1.0)
+                {
+                    lines = labs(lines);
+                    data = [NSData dataWithBytes: DOWN_ARROW_APP
+                                   length: ARROW_LEN];
+                }
+                else
+                {
+                    data = [NSData dataWithBytes: UP_ARROW_APP
+                                   length: ARROW_LEN];
+                }
+
+                lines = round(lines) + 1.0;
+                NSObject* shell = [[self controller] shell];
+                long i;
+                for (i = 0; i < lines; ++i)
+                    [shell writeData: data];
+
                 goto handled;
             }
             else
