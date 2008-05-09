@@ -61,6 +61,21 @@ To enable the mouse for all modes add the following to your `~/.vimrc` file:
 
 Run `:help mouse` for more information and other possible values.
 
+> What about enabling it in Emacs?
+
+By default MouseTerm will use simulated mouse wheel scrolling in Emacs. To
+enable terminal mouse support, add this to your `~/.emacs` file:
+
+    (xterm-mouse-mode 1)
+    (mouse-wheel-mode 1)
+    (global-set-key [mouse-4] '(lambda ()
+                                 (interactive)
+                                 (scroll-down 1)))
+
+    (global-set-key [mouse-5] '(lambda ()
+                                 (interactive)
+                                 (scroll-up 1)))
+
 [5]: http://www.gnu.org/software/emacs/
 [6]: http://www.vim.org/
 
