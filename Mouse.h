@@ -47,11 +47,13 @@ typedef enum
 #define MOUSE_RESPONSE_LEN 6
 
 // Returns a control code for a mouse movement (from iTerm)
-inline NSData* mousePress(MouseButton button, unsigned int modflag, int x, int y)
+inline NSData* mousePress(MouseButton button, unsigned int modflag,
+                          unsigned int x, unsigned int y)
 {
     char buf[MOUSE_RESPONSE_LEN + 1];
     char cb;
 
+    // FIXME: xterm returns ` for up, while this does b
     cb = button % 3;
     if (button > MOUSE_RELEASE) // Wheel movement
         cb += 64;

@@ -202,14 +202,20 @@
             NSPoint viewloc = [self convertPoint: [event locationInWindow]
                                     fromView: nil];
             Position pos = [self displayPositionForPoint: viewloc];
-            NSData* data;
-            unsigned int modflag = [event modifierFlags];
+            // The above method returns the position *including* scrollback,
+            // so we have to compensate for that.
+            unsigned int scrollback =
+                (unsigned int) [[self logicalScreen] lineCount] -
+                (unsigned int) [self rowCount];
+            pos.y -= scrollback;
+            NSData* data = mousePress(button, [event modifierFlags], pos.x,
+                                      pos.y);
 
             NSObject* shell = [[self controller] shell];
             long i;
             long lines = lround(delta) + 1;
             for (i = 0; i < lines; ++i)
-                [shell writeData: mousePress(button, modflag, pos.x, pos.y)];
+                [shell writeData: data];
 
             goto handled;
         }
