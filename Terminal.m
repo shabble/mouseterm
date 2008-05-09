@@ -153,6 +153,10 @@
                 // Calculate how many lines to scroll by (takes acceleration
                 // into account)
                 NSData* data;
+                // deltaY returns CGFloat, which can be float or double
+                // depending on the architecture. Upcasting floats to doubles
+                // seems like an easier compromise than detecting what the
+                // type really is.
                 double lines = [event deltaY];
 
                 if (copysignf(1.0, lines) == -1.0)
