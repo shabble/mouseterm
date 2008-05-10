@@ -43,7 +43,7 @@
             case '2':
                 mouseMode = BUTTON_MODE;
                 break;
-            case '3': 
+            case '3':
                 mouseMode = ALL_MODE;
                 break;
             }
