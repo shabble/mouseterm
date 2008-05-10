@@ -101,37 +101,56 @@
 #if 0
 - (void) MouseTerm_mouseDown: (NSEvent*) event
 {
+    NSLog(@"[MouseTerm] mouseDown");
     return [self MouseTerm_mouseDown: event];
-}
-
-- (void) MouseTerm_mouseUp: (NSEvent*) event
-{
-    return [self MouseTerm_mouseUp: event];
 }
 
 - (void) MouseTerm_mouseDragged: (NSEvent*) event
 {
+    NSLog(@"[MouseTerm] mouseDragged");
     return [self MouseTerm_mouseDragged: event];
 }
 
-- (void) MouseTerm_mouseEntered: (NSEvent*) event
+- (void) MouseTerm_mouseUp: (NSEvent*) event
 {
-    return [self MouseTerm_mouseEntered: event];
+    NSLog(@"[MouseTerm] mouseUp");
+    return [self MouseTerm_mouseUp: event];
+}
+
+- (void) MouseTerm_rightMouseDown: (NSEvent*) event
+{
+    NSLog(@"[MouseTerm] rightMouseDown");
+    return [self MouseTerm_rightMouseDown: event];
+}
+
+- (void) MouseTerm_rightMouseDragged: (NSEvent*) event
+{
+    NSLog(@"[MouseTerm] rightMouseDragged");
+    return [self MouseTerm_rightMouseDragged: event];
+}
+
+- (void) MouseTerm_rightMouseUp: (NSEvent*) event
+{
+    NSLog(@"[MouseTerm] rightMouseUp");
+    return [self MouseTerm_rightMouseUp: event];
 }
 
 - (void) MouseTerm_otherMouseDown: (NSEvent*) event
 {
+    NSLog(@"[MouseTerm] otherMouseDown");
     return [self MouseTerm_otherMouseDown: event];
-}
-
-- (void) MouseTerm_otherMouseUp: (NSEvent*) event
-{
-    return [self MouseTerm_otherMouseUp: event];
 }
 
 - (void) MouseTerm_otherMouseDragged: (NSEvent*) event
 {
+    NSLog(@"[MouseTerm] otherMouseDragged");
     return [self MouseTerm_otherMouseDragged: event];
+}
+
+- (void) MouseTerm_otherMouseUp: (NSEvent*) event
+{
+    NSLog(@"[MouseTerm] otherMouseUp");
+    return [self MouseTerm_otherMouseUp: event];
 }
 #endif
 
@@ -147,14 +166,19 @@
         (unsigned int) [[self logicalScreen] lineCount] -
         (unsigned int) [self rowCount];
 
-    if (scrollback > 0 && [[[self controller] scroller] floatValue] < 1.0)
+    if (scrollback > 0 &&
+        [[(TTTabController*) [self controller] scroller] floatValue] < 1.0)
+    {
         goto ignored;
+    }
 
     switch ([(NSNumber*) IVAR(self, @"mouseMode") intValue])
     {
         case NO_MODE:
         {
-            if ((BOOL) [[self logicalScreen] isAlternateScreenActive] &&
+            if ((BOOL) [(TTLogicalScreen*) [self logicalScreen]
+                        isAlternateScreenActive]
+                &&
                 [IVAR(self, @"appCursorMode") boolValue])
             {
                 // Calculate how many lines to scroll by (takes acceleration
@@ -178,7 +202,7 @@
                                    length: ARROW_LEN];
                 }
 
-                NSObject* shell = [[self controller] shell];
+                TTShell* shell = [[self controller] shell];
                 long i;
                 long lines = lround(delta) + 1;
                 for (i = 0; i < lines; ++i)
@@ -215,7 +239,7 @@
             NSData* data = mousePress(button, [event modifierFlags], pos.x,
                                       pos.y);
 
-            NSObject* shell = [[self controller] shell];
+            TTShell* shell = [[self controller] shell];
             long i;
             long lines = lround(delta) + 1;
             for (i = 0; i < lines; ++i)

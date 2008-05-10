@@ -15,5 +15,11 @@ typedef struct
 @interface TTTabController: NSObject
 @end
 
+@interface TTShell: NSObject
+@end
+
+@interface TTLogicalScreen: NSObject
+@end
+
 // Custom instance variables
 extern NSMutableDictionary* MouseTerm_ivars;
