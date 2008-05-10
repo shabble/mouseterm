@@ -16,9 +16,9 @@ No configuration is necessary, just install SIMBL and move
 Download
 --------
 
-[MouseTerm.zip][3] (? KB)
+[MouseTerm.dmg][3] (80 KB)
 
-[3]: http://bitheap.org/mouseterm/MouseTerm.zip
+[3]: http://bitheap.org/mouseterm/MouseTerm.dmg
 
 
 Status
@@ -90,7 +90,7 @@ Run `make` to compile the plugin, and `make install` to install it into
 your home directory's SIMBL plugins folder. Run `make` and `make builddmg`
 to create a disk image of the application.
 
-[JRSwizzle][8] and mouse reporting code from [iTerm][9] are used in
+[JRSwizzle][8] and some mouse reporting code from [iTerm][9] are used in
 MouseTerm.
 
 [7]: http://www.selenic.com/mercurial/
