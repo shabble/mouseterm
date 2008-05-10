@@ -8,7 +8,7 @@ typedef struct
     unsigned int x;
 } Position;
 
-@interface TTView: NSScrollView
+@interface TTView: NSView
 - (Position) displayPositionForPoint: (NSPoint) point;
 @end
 
