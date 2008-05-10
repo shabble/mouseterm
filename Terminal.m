@@ -139,8 +139,15 @@
 - (void) MouseTerm_scrollWheel: (NSEvent*) event
 {
     // Don't handle any scrolling if alt/option is pressed
-    // FIXME: Ignore event if scrollbar isn't at the bottom of the view
     if ([event modifierFlags] & NSAlternateKeyMask)
+        goto ignored;
+
+    // Don't handle scrolling if the scroller isn't at the bottom
+    unsigned int scrollback =
+        (unsigned int) [[self logicalScreen] lineCount] -
+        (unsigned int) [self rowCount];
+
+    if (scrollback > 0 && [[[self controller] scroller] floatValue] < 1.0)
         goto ignored;
 
     switch ([(NSNumber*) IVAR(self, @"mouseMode") intValue])
@@ -204,9 +211,6 @@
             Position pos = [self displayPositionForPoint: viewloc];
             // The above method returns the position *including* scrollback,
             // so we have to compensate for that.
-            unsigned int scrollback =
-                (unsigned int) [[self logicalScreen] lineCount] -
-                (unsigned int) [self rowCount];
             pos.y -= scrollback;
             NSData* data = mousePress(button, [event modifierFlags], pos.x,
                                       pos.y);
