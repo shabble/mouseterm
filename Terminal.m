@@ -206,7 +206,11 @@ inline void set_ivar(id obj, NSString* name, id value)
                 // type really is.
                 double delta = [event deltaY];
 
-                if (copysign(1.0, delta) == -1.0)
+                // Trackpads seem to return a lot of 0.0 events, which
+                // shouldn't trigger scrolling anyway.
+                if (delta == 0.0)
+                    goto handled;
+                else if (delta < 0.0)
                 {
                     delta = fabs(delta);
                     data = [NSData dataWithBytes: DOWN_ARROW_APP
@@ -238,7 +242,9 @@ inline void set_ivar(id obj, NSString* name, id value)
         {
             MouseButton button;
             double delta = [event deltaY];
-            if (copysign(1.0, delta) == -1.0)
+            if (delta == 0.0)
+                goto handled;
+            else if (delta < 0.0)
             {
                 delta = fabs(delta);
                 button = MOUSE_WHEEL_DOWN;
