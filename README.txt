@@ -7,7 +7,6 @@ within applications that support them.
 
 No configuration is necessary, just open the `.dmg` file, run `Install`, and
 restart Terminal.app. To uninstall, simply run `Uninstall` from the `.dmg`.
-No configuration is necessary, just install SIMBL and move
 
 [1]: http://www.culater.net/software/SIMBL/SIMBL.php
 [2]: http://www.apple.com/macosx/technology/unix.html
