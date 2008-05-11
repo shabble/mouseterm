@@ -16,7 +16,7 @@ restart Terminal.app. To uninstall, simply run `Uninstall` from the `.dmg`.
 Download
 --------
 
-[MouseTerm.dmg][4] (80 KB)
+[MouseTerm.dmg][4] (82 KB)
 
 [4]: http://bitheap.org/mouseterm/MouseTerm.dmg
 
