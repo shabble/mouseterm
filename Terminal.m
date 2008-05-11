@@ -190,7 +190,7 @@
                 // type really is.
                 double delta = [event deltaY];
 
-                if (copysignf(1.0, delta) == -1.0)
+                if (copysign(1.0, delta) == -1.0)
                 {
                     delta = fabs(delta);
                     data = [NSData dataWithBytes: DOWN_ARROW_APP
@@ -222,7 +222,7 @@
         {
             MouseButton button;
             double delta = [event deltaY];
-            if (copysignf(1.0, delta) == -1.0)
+            if (copysign(1.0, delta) == -1.0)
             {
                 delta = fabs(delta);
                 button = MOUSE_WHEEL_DOWN;
