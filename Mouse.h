@@ -1,7 +1,7 @@
 // Possible mouse modes
 typedef enum
 {
-    NO_MODE = -1,
+    NO_MODE = 0,
     NORMAL_MODE,
     HILITE_MODE,
     BUTTON_MODE,

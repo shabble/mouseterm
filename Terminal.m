@@ -5,12 +5,28 @@
 #import "MouseTerm.h"
 #import "Mouse.h"
 
-#define IVAR(obj, name) \
-    [[MouseTerm_ivars objectForKey: [NSValue valueWithPointer: obj]] \
-                      objectForKey: name]
-#define SET_IVAR(obj, name, value) \
-    [[MouseTerm_ivars objectForKey: [NSValue valueWithPointer: obj]] \
-                      setObject: value forKey: name]
+inline NSValue* init_ivars(id obj)
+{
+    NSValue* value = [NSValue valueWithPointer: obj];
+    if ([MouseTerm_ivars objectForKey: value] == nil)
+    {
+        [MouseTerm_ivars setObject: [NSMutableDictionary dictionary]
+                         forKey: value];
+    }
+    return value;
+}
+
+inline id get_ivar(id obj, NSString* name)
+{
+    NSValue* ptr = init_ivars(obj);
+    return [[MouseTerm_ivars objectForKey: ptr] objectForKey: name];
+}
+    
+inline void set_ivar(id obj, NSString* name, id value)
+{
+    NSValue* ptr = init_ivars(obj);
+    [[MouseTerm_ivars objectForKey: ptr] setObject: value forKey: name];
+}
 
 @implementation TTTabController (MouseTermTTTabController)
 
@@ -53,11 +69,11 @@
                 switch (flag)
                 {
                 case TOGGLE_ON:
-                    SET_IVAR([self view], @"mouseMode",
+                    set_ivar([self view], @"mouseMode",
                              [NSNumber numberWithInt: mouseMode]);
                     break;
                 case TOGGLE_OFF:
-                    SET_IVAR([self view], @"mouseMode",
+                    set_ivar([self view], @"mouseMode",
                              [NSNumber numberWithInt: NO_MODE]);
                     break;
                 }
@@ -79,11 +95,11 @@
             switch (flag)
             {
             case TOGGLE_ON:
-                SET_IVAR([self view], @"appCursorMode",
+                set_ivar([self view], @"appCursorMode",
                          [NSNumber numberWithBool: YES]);
                 break;
             case TOGGLE_OFF:
-                SET_IVAR([self view], @"appCursorMode",
+                set_ivar([self view], @"appCursorMode",
                          [NSNumber numberWithBool: NO]);
                 break;
             }
@@ -172,14 +188,14 @@
         goto ignored;
     }
 
-    switch ([(NSNumber*) IVAR(self, @"mouseMode") intValue])
+    switch ([(NSNumber*) get_ivar(self, @"mouseMode") intValue])
     {
         case NO_MODE:
         {
             if ((BOOL) [(TTLogicalScreen*) [self logicalScreen]
                         isAlternateScreenActive]
                 &&
-                [IVAR(self, @"appCursorMode") boolValue])
+                [(NSNumber*) get_ivar(self, @"appCursorMode") boolValue])
             {
                 // Calculate how many lines to scroll by (takes acceleration
                 // into account)
@@ -260,8 +276,8 @@ ignored:
 {
     [MouseTerm_ivars setObject: [NSMutableDictionary dictionary]
                      forKey: [NSValue valueWithPointer: self]];
-    SET_IVAR(self, @"mouseMode", [NSNumber numberWithInt: NO_MODE]);
-    SET_IVAR(self, @"appCursorMode", [NSNumber numberWithBool: NO]);
+    set_ivar(self, @"mouseMode", [NSNumber numberWithInt: NO_MODE]);
+    set_ivar(self, @"appCursorMode", [NSNumber numberWithBool: NO]);
     return [self MouseTerm_initWithFrame: frame];
 }
 
