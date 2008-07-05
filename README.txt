@@ -96,3 +96,11 @@ MouseTerm.
 [8]: http://www.selenic.com/mercurial/
 [9]: http://rentzsch.com/trac/wiki/JRSwizzle
 [10]: http://iterm.sourceforge.net/
+
+
+Contact
+-------
+
+Contact information can be found on my site, [brodierao.com][11].
+
+[11]: http://brodierao.com/
