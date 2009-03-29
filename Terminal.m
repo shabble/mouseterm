@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import <math.h>
-#import <alloca.h>
 
 #import "MouseTerm.h"
 #import "Mouse.h"
