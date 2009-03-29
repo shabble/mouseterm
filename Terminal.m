@@ -21,7 +21,7 @@ inline id get_ivar(id obj, NSString* name)
     NSValue* ptr = init_ivars(obj);
     return [[MouseTerm_ivars objectForKey: ptr] objectForKey: name];
 }
-    
+
 inline void set_ivar(id obj, NSString* name, id value)
 {
     NSValue* ptr = init_ivars(obj);
