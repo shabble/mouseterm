@@ -5,20 +5,6 @@
 
 #import "MouseTerm.h"
 
-// Dummy implementations to fix 64-bit linking
-@implementation TTView
-- (Position) displayPositionForPoint: (NSPoint) point {}
-@end
-
-@implementation TTTabController
-@end
-
-@implementation TTShell
-@end
-
-@implementation TTLogicalScreen
-@end
-
 NSMutableDictionary* MouseTerm_ivars = nil;
 
 @interface MouseTerm: NSObject
