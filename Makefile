@@ -6,9 +6,9 @@ DMGFILES=$(NAME).bundle README.txt LICENSE.txt
 
 build:
 	mkdir -p $(NAME).bundle/Contents/MacOS
-	gcc $(CFLAGS) -arch i386 -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET).i386
-	gcc $(CFLAGS) -arch ppc -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET).ppc
-	gcc $(CFLAGS) -arch x86_64 -mmacosx-version-min=10.5 $(OBJECTS) -o $(TARGET).x86_64
+	gcc $(CFLAGS) -arch i386 -mmacosx-version-min=10.6 $(OBJECTS) -o $(TARGET).i386
+	gcc $(CFLAGS) -arch ppc -mmacosx-version-min=10.6 $(OBJECTS) -o $(TARGET).ppc
+	gcc $(CFLAGS) -arch x86_64 -mmacosx-version-min=10.6 $(OBJECTS) -o $(TARGET).x86_64
 	lipo -create $(TARGET).i386 $(TARGET).ppc $(TARGET).x86_64 -output $(TARGET)
 	rm -f $(TARGET).i386 $(TARGET).ppc $(TARGET).x86_64
 	cp Info.plist $(NAME).bundle/Contents
