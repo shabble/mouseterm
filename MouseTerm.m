@@ -38,10 +38,11 @@ NSMutableDictionary* MouseTerm_ivars = nil;
 
 #define SWIZZLE(cls, sel1, sel2)                                        \
     do {                                                                \
-        if (![cls jr_swizzleMethod: sel1 withMethod: sel2 error: nil])  \
+        NSError *err = nil;                                             \
+        if (![cls jr_swizzleMethod: sel1 withMethod: sel2 error: &err]) \
         {                                                               \
-            NSLog(@"[MouseTerm] ERROR: Failed to swizzle [%@ %s]", cls, \
-                  sel1);                                                \
+            NSLog(@"[MouseTerm] ERROR: Failed to swizzle [%@ %s]: %@",  \
+                  cls, sel1, err);                                      \
             return;                                                     \
         }                                                               \
     } while (0)
