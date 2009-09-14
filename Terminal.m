@@ -27,7 +27,7 @@ inline void set_ivar(id obj, NSString* name, id value)
     [[MouseTerm_ivars objectForKey: ptr] setObject: value forKey: name];
 }
 
-@implementation TTTabController (MouseTermTTTabController)
+@implementation NSObject (MouseTermTTTabController)
 
 // Intercepts all shell output to look for mouse reporting control codes
 - (void) MouseTerm_shellDidReceiveData: (NSData*) data
@@ -68,11 +68,11 @@ inline void set_ivar(id obj, NSString* name, id value)
                 switch (flag)
                 {
                 case TOGGLE_ON:
-                    set_ivar([self view], @"mouseMode",
+                    set_ivar([self shell], @"mouseMode",
                              [NSNumber numberWithInt: mouseMode]);
                     break;
                 case TOGGLE_OFF:
-                    set_ivar([self view], @"mouseMode",
+                    set_ivar([self shell], @"mouseMode",
                              [NSNumber numberWithInt: NO_MODE]);
                     break;
                 }
@@ -94,11 +94,11 @@ inline void set_ivar(id obj, NSString* name, id value)
             switch (flag)
             {
             case TOGGLE_ON:
-                set_ivar([self view], @"appCursorMode",
+                set_ivar([self shell], @"appCursorMode",
                          [NSNumber numberWithBool: YES]);
                 break;
             case TOGGLE_OFF:
-                set_ivar([self view], @"appCursorMode",
+                set_ivar([self shell], @"appCursorMode",
                          [NSNumber numberWithBool: NO]);
                 break;
             }
@@ -110,7 +110,7 @@ inline void set_ivar(id obj, NSString* name, id value)
 
 @end
 
-@implementation TTView (MouseTermTTView)
+@implementation NSView (MouseTermTTView)
 
 // FIXME: These need to be implemented!
 #if 0
@@ -176,25 +176,28 @@ inline void set_ivar(id obj, NSString* name, id value)
     if ([event modifierFlags] & NSAlternateKeyMask)
         goto ignored;
 
+    TTLogicalScreen* screen = [self logicalScreen];
+
     // Don't handle scrolling if the scroller isn't at the bottom
-    unsigned int scrollback =
-        (unsigned int) [[self logicalScreen] lineCount] -
-        (unsigned int) [self rowCount];
+    linecount_t scrollback =
+        (linecount_t) [screen lineCount] -
+        (linecount_t) [self rowCount];
 
     if (scrollback > 0 &&
-        [[(TTTabController*) [self controller] scroller] floatValue] < 1.0)
+        [[[self pane] scroller] floatValue] < 1.0)
     {
         goto ignored;
     }
 
-    switch ([(NSNumber*) get_ivar(self, @"mouseMode") intValue])
+    TTShell* shell = [[self controller] shell];
+
+    switch ([(NSNumber*) get_ivar(shell, @"mouseMode") intValue])
     {
         case NO_MODE:
         {
-            if ((BOOL) [(TTLogicalScreen*) [self logicalScreen]
-                        isAlternateScreenActive]
+            if ([screen isAlternateScreenActive]
                 &&
-                [(NSNumber*) get_ivar(self, @"appCursorMode") boolValue])
+                [(NSNumber*) get_ivar(shell, @"appCursorMode") boolValue])
             {
                 // Calculate how many lines to scroll by (takes acceleration
                 // into account)
@@ -221,9 +224,8 @@ inline void set_ivar(id obj, NSString* name, id value)
                                    length: ARROW_LEN];
                 }
 
-                TTShell* shell = [[self controller] shell];
-                long i;
-                long lines = lround(delta) + 1;
+                linecount_t i;
+                linecount_t lines = lround(delta) + 1;
                 for (i = 0; i < lines; ++i)
                     [shell writeData: data];
 
@@ -260,7 +262,6 @@ inline void set_ivar(id obj, NSString* name, id value)
             NSData* data = mousePress(button, [event modifierFlags], pos.x,
                                       pos.y);
 
-            TTShell* shell = [[self controller] shell];
             long i;
             long lines = lround(delta) + 1;
             for (i = 0; i < lines; ++i)
@@ -276,14 +277,21 @@ ignored:
     [self MouseTerm_scrollWheel: event];
 }
 
+@end
+
+@implementation NSObject (MouseTermTTShell)
+
 // Initializes instance variables
-- (TTView*) MouseTerm_initWithFrame: (NSRect) frame
+- (TTShell*) MouseTerm_initWithAction: (SEL) arg1 target: (id) arg2
+             profile: (id) arg3 controller: (id) arg4 customShell: (id) arg5
+             commandAsShell: (BOOL) arg6
 {
     [MouseTerm_ivars setObject: [NSMutableDictionary dictionary]
                      forKey: [NSValue valueWithPointer: self]];
     set_ivar(self, @"mouseMode", [NSNumber numberWithInt: NO_MODE]);
     set_ivar(self, @"appCursorMode", [NSNumber numberWithBool: NO]);
-    return [self MouseTerm_initWithFrame: frame];
+    return [self MouseTerm_initWithAction: arg1 target: arg2 profile: arg3
+                 controller: arg4 customShell: arg5 commandAsShell: arg6];
 }
 
 // Deletes instance variables
