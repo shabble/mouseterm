@@ -6,7 +6,7 @@ DMGFILES=$(NAME).bundle README.txt LICENSE.txt
 
 build:
 	mkdir -p $(NAME).bundle/Contents/MacOS
-	gcc $(CFLAGS) -arch i386 -arch ppc -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET)
+	gcc $(CFLAGS) -arch i386 -arch x86_64 -mmacosx-version-min=10.6 $(OBJECTS) -o $(TARGET)
 	cp Info.plist $(NAME).bundle/Contents
 buildnative:
 	mkdir -p $(NAME).bundle/Contents/MacOS

@@ -24,10 +24,11 @@ NSMutableDictionary* MouseTerm_ivars = nil;
 
 #define SWIZZLE(cls, sel1, sel2)                                        \
     do {                                                                \
-        if (![cls jr_swizzleMethod: sel1 withMethod: sel2 error: nil])  \
+        NSError *err = nil;                                             \
+        if (![cls jr_swizzleMethod: sel1 withMethod: sel2 error: &err]) \
         {                                                               \
-            NSLog(@"[MouseTerm] ERROR: Failed to swizzle [%@ %s]", cls, \
-                  sel1);                                                \
+            NSLog(@"[MouseTerm] ERROR: Failed to swizzle [%@ %s]: %@",  \
+                  cls, sel1, err);                                      \
             return;                                                     \
         }                                                               \
     } while (0)
@@ -42,8 +43,14 @@ NSMutableDictionary* MouseTerm_ivars = nil;
     }
 
     EXISTS(controller, @selector(shellDidReceiveData:));
-    EXISTS(controller, @selector(view));
-    EXISTS(controller, @selector(scroller));
+
+    Class pane = NSClassFromString(@"TTPane");
+    if (!pane)
+    {
+        NSLog(@"[MouseTerm] ERROR: Got nil Class for TTPane");
+        return;
+    }
+    EXISTS(pane, @selector(scroller));
 
     Class logicalScreen = NSClassFromString(@"TTLogicalScreen");
     if (!logicalScreen)
@@ -62,6 +69,8 @@ NSMutableDictionary* MouseTerm_ivars = nil;
     }
 
     EXISTS(shell, @selector(writeData:));
+    EXISTS(shell, @selector(initWithAction:target:profile:controller:customShell:commandAsShell:));
+    EXISTS(shell, @selector(dealloc));
 
     Class view = NSClassFromString(@"TTView");
     if (!view)
@@ -70,8 +79,6 @@ NSMutableDictionary* MouseTerm_ivars = nil;
         return;
     }
 
-    EXISTS(view, @selector(initWithFrame:));
-    EXISTS(view, @selector(dealloc));
     EXISTS(view, @selector(scrollWheel:));
     EXISTS(view, @selector(rowCount));
     EXISTS(view, @selector(controller));
@@ -81,9 +88,9 @@ NSMutableDictionary* MouseTerm_ivars = nil;
     // if some methods are swizzled but not others.
     MouseTerm_ivars = [[NSMutableDictionary alloc] init];
 
-    SWIZZLE(view, @selector(initWithFrame:),
-            @selector(MouseTerm_initWithFrame:));
-    SWIZZLE(view, @selector(dealloc), @selector(MouseTerm_dealloc));
+    SWIZZLE(shell, @selector(initWithAction:target:profile:controller:customShell:commandAsShell:),
+            @selector(MouseTerm_initWithAction:target:profile:controller:customShell:commandAsShell:));
+    SWIZZLE(shell, @selector(dealloc), @selector(MouseTerm_dealloc));
     SWIZZLE(view, @selector(scrollWheel:), @selector(MouseTerm_scrollWheel:));
 #if 0
     SWIZZLE(view, @selector(mouseDown:), @selector(MouseTerm_mouseDown:));
