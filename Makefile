@@ -1,16 +1,20 @@
-CFLAGS=-bundle -framework Cocoa -O2 -Wall
+CFLAGS=-bundle -framework Cocoa -O2 -Wall -Wno-protocol -Wno-undeclared-selector
+
 OBJECTS=JRSwizzle.m MouseTerm.m Terminal.m
 NAME=MouseTerm
 TARGET=$(NAME).bundle/Contents/MacOS/$(NAME)
 DMGFILES=$(NAME).bundle README.txt LICENSE.txt
+CC = gcc-4.2
 
-build:
+.PHONY: build install clean
+
+build: clean
 	mkdir -p $(NAME).bundle/Contents/MacOS
-	gcc $(CFLAGS) -arch i386 -arch ppc -mmacosx-version-min=10.4 $(OBJECTS) -o $(TARGET)
+	$(CC) $(CFLAGS) -arch i386 -mmacosx-version-min=10.5 $(OBJECTS) -o $(TARGET)
 	cp Info.plist $(NAME).bundle/Contents
 buildnative:
 	mkdir -p $(NAME).bundle/Contents/MacOS
-	gcc $(CFLAGS) $(OBJECTS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET)
 	cp Info.plist $(NAME).bundle/Contents
 builddmg:
 	rm -rf $(NAME) $(NAME).dmg
@@ -23,6 +27,6 @@ builddmg:
 clean:
 	rm -rf $(NAME).bundle
 	rm -f $(NAME).dmg
-install:
+install: build
 	mkdir -p $(HOME)/Library/Application\ Support/SIMBL/Plugins
 	cp -R $(NAME).bundle $(HOME)/Library/Application\ Support/SIMBL/Plugins
