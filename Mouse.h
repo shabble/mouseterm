@@ -1,3 +1,5 @@
+#ifndef __MOUSE_H
+#define __MOUSE_H
 // Possible mouse modes
 typedef enum
 {
@@ -31,6 +33,15 @@ typedef enum
 #define TOGGLE_CURSOR_KEYS "\033[?1"
 #define TOGGLE_CURSOR_KEYS_LEN (sizeof(TOGGLE_CURSOR_KEYS) - 1)
 
+#define ALTERNATE_SCREEN "\033[?47"
+#define ALTERNATE_SCREEN_LEN (sizeof(ALTERNATE_SCREEN) - 1)
+
+#define OSC_TITLE_ESCAPE_START "\033]2;"
+#define OSC_TITLE_ESCAPE_START_LEN (sizeof(OSC_TITLE_ESCAPE_START) - 1)
+
+#define OSC_TITLE_ESCAPE_END "\007"
+
+
 // X11 mouse button values
 typedef enum
 {
@@ -46,34 +57,5 @@ typedef enum
 #define MOUSE_RESPONSE "\033[M%c%c%c"
 #define MOUSE_RESPONSE_LEN 6
 
-// Returns a control code for a mouse movement (from iTerm)
-inline NSData* mousePress(MouseButton button, unsigned int modflag,
-                          unsigned int x, unsigned int y)
-{
-    char buf[MOUSE_RESPONSE_LEN + 1];
-    char cb;
 
-    switch (button)
-    {
-    case MOUSE_WHEEL_DOWN:
-        cb = 65;
-        break;
-    case MOUSE_WHEEL_UP:
-        cb = 64;
-        break;
-    default:
-        cb = button % 3;
-    }
-    cb += 32;
-
-    if (modflag & NSShiftKeyMask)
-        cb |= 4;
-    if (modflag & NSAlternateKeyMask) // Alt/option
-        cb |= 8;
-    if (modflag & NSControlKeyMask)
-        cb |= 16;
-
-    snprintf(buf, sizeof(buf), MOUSE_RESPONSE, cb, 32 + x + 1,
-             32 + y + 1);
-    return [NSData dataWithBytes: buf length: MOUSE_RESPONSE_LEN];
-}
+#endif
