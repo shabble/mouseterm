@@ -3,6 +3,39 @@
 
 #import "MouseTerm.h"
 #import "Mouse.h"
+#import "EscapeParser.h"
+
+// Returns a control code for a mouse movement (from iTerm)
+inline NSData* mousePress(MouseButton button, unsigned int modflag,
+                          unsigned int x, unsigned int y)
+{
+    char buf[MOUSE_RESPONSE_LEN + 1];
+    char cb;
+
+    switch (button)
+    {
+    case MOUSE_WHEEL_DOWN:
+        cb = 65;
+        break;
+    case MOUSE_WHEEL_UP:
+        cb = 64;
+        break;
+    default:
+        cb = button % 3;
+    }
+    cb += 32;
+
+    if (modflag & NSShiftKeyMask)
+        cb |= 4;
+    if (modflag & NSAlternateKeyMask) // Alt/option
+        cb |= 8;
+    if (modflag & NSControlKeyMask)
+        cb |= 16;
+
+    snprintf(buf, sizeof(buf), MOUSE_RESPONSE, cb, 32 + x + 1,
+             32 + y + 1);
+    return [NSData dataWithBytes: buf length: MOUSE_RESPONSE_LEN];
+}
 
 inline NSValue* init_ivars(id obj)
 {
@@ -29,81 +62,48 @@ inline void set_ivar(id obj, NSString* name, id value)
 
 @implementation TTTabController (MouseTermTTTabController)
 
+- (id)   MouseTerm_getIvar:(NSString*)name {
+    return get_ivar([self view], name);
+}
+
+- (void) MouseTerm_setIvar:(NSString*)name toValue:(id)value {
+    set_ivar([self view], name, value);
+}
 // Intercepts all shell output to look for mouse reporting control codes
 - (void) MouseTerm_shellDidReceiveData: (NSData*) data
 {
     // FIXME: What if the data's split up over method calls?
     NSUInteger length = [data length];
     const char* chars = [data bytes];
-    const char* pos;
+    //const char* pos;
 
-    // Handle mouse reporting toggle
-    if ((pos = strnstr(chars, TOGGLE_MOUSE, length)))
-    {
-        // Is there enough data in the buffer for the next two characters?
-        if (length >= (NSUInteger) (&pos[TOGGLE_MOUSE_LEN] - chars) + 2)
-        {
-            char mode = pos[TOGGLE_MOUSE_LEN];
-            char flag = pos[TOGGLE_MOUSE_LEN + 1];
-            MouseMode mouseMode = NO_MODE;
+    NSLog(@"[MouseTerm] got Data: %@", data);
 
-            switch (mode)
-            {
-            case '0':
-                mouseMode = NORMAL_MODE;
-                break;
-            case '1':
-                mouseMode = HILITE_MODE;
-                break;
-            case '2':
-                mouseMode = BUTTON_MODE;
-                break;
-            case '3':
-                mouseMode = ALL_MODE;
-                break;
-            }
+    EP_execute(chars, length, NO, self);
 
-            if (mouseMode != NO_MODE)
-            {
-                switch (flag)
-                {
-                case TOGGLE_ON:
-                    set_ivar([self view], @"mouseMode",
-                             [NSNumber numberWithInt: mouseMode]);
-                    break;
-                case TOGGLE_OFF:
-                    set_ivar([self view], @"mouseMode",
-                             [NSNumber numberWithInt: NO_MODE]);
-                    break;
-                }
-            }
-        }
-    }
-    // Handle application cursor keys mode toggle
-    //
-    // Note: This information does exist on the TTVT100Emulator object
-    // already, but it's in private member data, and there's no method
-    // that returns any data from it. That means we have to look for it
-    // ourselves.
-    else if ((pos = strnstr(chars, TOGGLE_CURSOR_KEYS, length)))
-    {
-        // Is there enough data in the buffer for the next character?
-        if (length >= (NSUInteger) (&pos[TOGGLE_CURSOR_KEYS_LEN] - chars) + 1)
-        {
-            char flag = pos[TOGGLE_CURSOR_KEYS_LEN];
-            switch (flag)
-            {
-            case TOGGLE_ON:
-                set_ivar([self view], @"appCursorMode",
-                         [NSNumber numberWithBool: YES]);
-                break;
-            case TOGGLE_OFF:
-                set_ivar([self view], @"appCursorMode",
-                         [NSNumber numberWithBool: NO]);
-                break;
-            }
-        }
-    }
+    NSLog(@"[MouseTerm] appCursor: %@", [self MouseTerm_getIvar:@"appCursorMode"]);
+    NSLog(@"[MouseTerm] title: %@", [self customTitle]);
+    NSLog(@"[MouseTerm] mouseMode: %@", [self MouseTerm_getIvar:@"mouseMode"]);
+
+    
+    // // } else if ((pos = strnstr(chars, ALTERNATE_SCREEN, length))) {
+    // //     if (length >= (NSUInteger) (&pos[ALTERNATE_SCREEN_LEN] - chars) + 1) {
+    // //         NSUInteger flag = pos[ALTERNATE_SCREEN_LEN]==TOGGLE_ON?1:0;
+    // //         NSLog(@"[MouseTerm] got Alternate screen escape toggle: %d", flag);
+    // //         if (!(BOOL) [(NSNumber*)
+    // //                        get_ivar(self, @"enableAlternateScreen") boolValue]) {
+    // //             set_ivar([self view], @"altScreenActive",
+    // //                      [NSNumber numberWithInt: flag]);
+    // //             NSLog(@"[MouseTerm] Alternate screen disabled; call intercepted.");
+    // //             return;
+    // //         }
+    // //     }
+    // // Handle application cursor keys mode toggle
+    // //
+    // // Note: This information does exist on the TTVT100Emulator object
+    // // already, but it's in private member data, and there's no method
+    // // that returns any data from it. That means we have to look for it
+    // // ourselves.
 
     [self MouseTerm_shellDidReceiveData: data];
 }
@@ -191,11 +191,29 @@ inline void set_ivar(id obj, NSString* name, id value)
     {
         case NO_MODE:
         {
-            if ((BOOL) [(TTLogicalScreen*) [self logicalScreen]
-                        isAlternateScreenActive]
-                &&
-                [(NSNumber*) get_ivar(self, @"appCursorMode") boolValue])
+            BOOL maybeAppScroll = NO;
+            if ((BOOL) [(NSNumber*) 
+                           get_ivar(self, @"enableAlternateScreen") boolValue]) {
+                if ((BOOL) [(TTLogicalScreen*) [self logicalScreen]
+                                               isAlternateScreenActive]) {
+                    maybeAppScroll = YES;
+                }
+            } else {
+                if ((BOOL) [(NSNumber*) 
+                               get_ivar(self,
+                                        @"altScreenActive") boolValue]) {
+
+                
+                   maybeAppScroll = YES; 
+                }
+            }
+            NSLog(@"[MouseTerm] MaybeScroll %d", maybeAppScroll);                
+
+            if(maybeAppScroll &&
+               [(NSNumber*) get_ivar(self, @"appCursorMode") boolValue])
             {
+                NSLog(@"[MouseTerm] AppCursor Scroll called");
+
                 // Calculate how many lines to scroll by (takes acceleration
                 // into account)
                 NSData* data;
@@ -283,6 +301,10 @@ ignored:
                      forKey: [NSValue valueWithPointer: self]];
     set_ivar(self, @"mouseMode", [NSNumber numberWithInt: NO_MODE]);
     set_ivar(self, @"appCursorMode", [NSNumber numberWithBool: NO]);
+
+    set_ivar(self, @"enableAlternateScreen", [NSNumber numberWithBool: YES]);
+    set_ivar(self, @"altScreenActive", [NSNumber numberWithBool: NO]);
+
     return [self MouseTerm_initWithFrame: frame];
 }
 
