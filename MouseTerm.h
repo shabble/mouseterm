@@ -13,6 +13,8 @@ typedef struct
 @end
 
 @interface TTTabController: NSObject
+- (void) setCustomTitle:(id)fp8;
+- (id)   customTitle;
 @end
 
 @interface TTShell: NSObject
