@@ -5,7 +5,7 @@
 
 #import "MouseTerm.h"
 
-NSMutableDictionary* MouseTerm_ivars = nil;
+ NSMutableDictionary* MouseTerm_ivars = nil;
 
 @interface MouseTerm: NSObject
 @end
@@ -44,6 +44,9 @@ NSMutableDictionary* MouseTerm_ivars = nil;
     EXISTS(controller, @selector(shellDidReceiveData:));
     EXISTS(controller, @selector(view));
     EXISTS(controller, @selector(scroller));
+
+    EXISTS(controller, @selector(tabTitle));
+//    EXISTS(controller, @selector(setCustomTitle));
 
     Class logicalScreen = NSClassFromString(@"TTLogicalScreen");
     if (!logicalScreen)
@@ -85,13 +88,16 @@ NSMutableDictionary* MouseTerm_ivars = nil;
             @selector(MouseTerm_initWithFrame:));
     SWIZZLE(view, @selector(dealloc), @selector(MouseTerm_dealloc));
     SWIZZLE(view, @selector(scrollWheel:), @selector(MouseTerm_scrollWheel:));
-#if 0
+
     SWIZZLE(view, @selector(mouseDown:), @selector(MouseTerm_mouseDown:));
+
+    SWIZZLE(view, @selector(rightMouseDown:),
+            @selector(MouseTerm_rightMouseDown:));
+
+#if 0
     SWIZZLE(view, @selector(mouseDragged:),
             @selector(MouseTerm_mouseDragged:));
     SWIZZLE(view, @selector(mouseUp:), @selector(MouseTerm_mouseUp:));
-    SWIZZLE(view, @selector(rightMouseDown:),
-            @selector(MouseTerm_rightMouseDown:));
     SWIZZLE(view, @selector(rightMouseDragged:),
             @selector(MouseTerm_rightMouseDragged:));
     SWIZZLE(view, @selector(rightMouseUp:),
@@ -105,6 +111,13 @@ NSMutableDictionary* MouseTerm_ivars = nil;
 #endif
     SWIZZLE(controller, @selector(shellDidReceiveData:),
             @selector(MouseTerm_shellDidReceiveData:));
+    // SWIZZLE(controller, @selector(setCustomTitle:),
+    //         @selector(MouseTerm_setCustomTitle:));
+
+    SWIZZLE(controller, @selector(tabTitle),
+            @selector(MouseTerm_tabTitle));
+
+
 }
 
 // Deletes instance variables dictionary

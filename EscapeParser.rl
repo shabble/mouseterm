@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <math.h>
 #import "EscapeParser.h"
+#import "MouseTerm.h"
 #import "Mouse.h"
 
 
@@ -12,37 +13,38 @@
     }
 
     action got_title {
-        NSLog(@"[MouseTerm] Parsed Title: %@", titleStr);
-        [obj setScriptCustomTitle:titleStr];
-        NSRange all = NSMakeRange(0, [titleStr length]);
-        [titleStr deleteCharactersInRange:all];
-        //[titleStr dealloc];
+        NSLog(@"[MouseTerm] Parsed Title: %@", [stateObj pendingTitleString]);
+//        [mobj MouseTerm_updateMouseTitle];
+        [mobj MouseTerm_setCustomTitle:[stateObj pendingTitleString]];
+        [stateObj clearPendingTitleString];
     }
 
     action handle_flag {
         if (fc == 'h') {
-            toggle_flag = YES;
+            [stateObj setStateToggle:YES];
         } else {
-            toggle_flag = NO;
+            [stateObj setStateToggle:NO];
         }
-        NSLog(@"[MouseTerm] Parsed ToggleFlag: %d", toggle_flag);
+
+        NSLog(@"[MouseTerm] Parsed ToggleFlag: %d", [stateObj stateToggle]);
     }
 
     action handle_title_string {
-        [titleStr appendFormat:@"%c", fc];
+        [stateObj appendPendingTitleString:fc];
     }
 
     action handle_appkeys {
-        NSLog(@"[MouseTerm] Parsed Appkeys %d", toggle_flag);
-        [obj MouseTerm_setIvar:@"appCursorMode"
-         toValue: [NSNumber numberWithBool: toggle_flag]];
+        NSLog(@"[MouseTerm] Parsed Appkeys %d for %@", [stateObj stateToggle], mobj);
+        [mobj MouseTerm_setAppCursorMode: [stateObj stateToggle]];
+        //      [mobj MouseTerm_updateMouseTitle];
     }
 
     action handle_mouse_digit {
-        mouseMode = (mouseMode * 10) + (fc - 48);
+        [stateObj setPendingMouseMode:(fc - 48)];
     }
 
     action handle_mouse {
+        int mouseMode = [stateObj pendingMouseMode];
         NSLog(@"[MouseTerm] Parsed MouseMode %d", mouseMode);
         MouseMode newMouseMode = NO_MODE;
         switch(mouseMode) {
@@ -64,15 +66,18 @@
         }
 
         if (newMouseMode != NO_MODE) {
-            if (toggle_flag) {
-                [obj MouseTerm_setIvar:@"mouseMode"
-                 toValue:[NSNumber numberWithInt: newMouseMode]];
+            if ([stateObj stateToggle]) {
+                [mobj MouseTerm_setMouseMode:newMouseMode];
             } else {
-                [obj MouseTerm_setIvar:@"mouseMode"
-                 toValue:[NSNumber numberWithInt: NO_MODE]];
+                [mobj MouseTerm_setMouseMode:NO_MODE];
             }
         }
-        mouseMode = 0;
+//        [mobj MouseTerm_updateMouseTitle];
+    }
+
+    action got_debug {
+        NSLog(@"[MouseTerm] Got debug");
+        [mobj MouseTerm_writeToShell:@"Hello"];
     }
 
     esc = 0x1b;
@@ -80,36 +85,45 @@
     flag = ("h" | "l") @handle_flag;
     osc = esc . ']';
     appkeys = "1";
-    mouse = "100" . (digit+) $handle_mouse_digit;
+    mouse = "100" . ([0123]) @handle_mouse_digit;
     mode_toggle = csi . "?" . (appkeys . flag @handle_flag @handle_appkeys 
                                | mouse . flag @handle_flag @handle_mouse );
 
-    title = osc . "2;" . (print+) $handle_title_string . 0x07;
+    debug = (csi . "1i");
+    bel = 0x07;
+    st  = 0x9c;
+    title = osc . "2;" . (print*) $handle_title_string . (bel | st);
 
     
-main := ((any - csi | any - osc)* . ( mode_toggle @got_toggle 
-                                      | title @got_title))*;
+main := ((any - csi | any - osc)* . ( mode_toggle # @got_toggle 
+                                      | title @got_title
+                                      | debug @got_debug))*;
 
 }%%
 
 %% write data;
 
 
-int EP_execute( const char *data, int len, BOOL isEof, id obj ) {
+int EP_execute( const char *data, int len, 
+                BOOL isEof, id obj,
+                MouseTermEscapeParserState *stateObj) 
+{
 	const char *p = data;
 	const char *pe = data + len;
 	const char *eof = isEof ? pe : 0;
 
-    BOOL toggle_flag = NO;
-    NSMutableString *titleStr = [NSMutableString stringWithCapacity:10];
-    int mouseMode = 0;
-    int cs;
-    NSLog(@"[MouseTerm] EP Exec");
+    int cs = [stateObj state];
+    MouseTermTTTabController *mobj = (MouseTermTTTabController*)obj;
+    NSThread* ct = [NSThread currentThread];
 
-    %% write init;
-	%% write exec;
+    if (eof) NSLog(@"[MouseTerm] %@ EOF", [mobj scriptTTY]);
+    //NSLog(@"%@ [MouseTerm] %@ EP Exec",ct, [mobj scriptTTY]);
+
+    %%write init nocs;
+    %%write exec;
     
-    NSLog(@"[MouseTerm] EP Exec done");
+    //NSLog(@"%@ [MouseTerm] %@ EP Exec done: s%d",ct,  [mobj scriptTTY],cs);
+    [stateObj setState:cs];
 
 	if ( cs == EscapeSeqParser_error )
 		return -1;
@@ -117,3 +131,4 @@ int EP_execute( const char *data, int len, BOOL isEof, id obj ) {
 		return 1;
 	return 0;
 }
+
