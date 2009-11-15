@@ -1,5 +1,11 @@
-CFLAGS=-g -O -Wall #-Wno-protocol -Wno-undeclared-selector
-LDFLAGS=-bundle -framework Cocoa -licucore
+OPT_LEVEL=2
+CFLAGS=-O$(OPT_LEVEL) -Wall #-Wno-protocol -Wno-undeclared-selector
+
+ifdef DEBUG
+	CFLAGS +=-g -DDEBUG
+endif
+
+LDFLAGS=-bundle -framework Cocoa -licucore # for regex support.
 PARSER=EscapeParser
 OBJECTS:=JRSwizzle.o \
 	MouseTerm.o \
@@ -18,22 +24,24 @@ INFO=$(BUNDLE)/Contents/Info.plist
 CC:=gcc-4.2
 RL:=ragel
 OSXVER:=10.5
-
+ARCH_LIST= # leave this empty to select default arch (as build_native does)
 ARCHES=$(foreach arch,$(ARCH_LIST),-arch $(arch))
 
 .PHONY: build install clean build_native dmg uninstall
 .PRECIOUS: $(PARSER).m
 
+# default, and what you should probably use, or install.
 build_native: | $(TARGET) $(INFO)
 
-build: ARCH_LIST=i386 ppc
+build: ARCH_LIST=i386 ppc # add additional architectures here to build them all.
 build: |  $(TARGET) $(INFO)
 
+# generic targets for building bits.
 %.m: %.rl
 	$(RL) -C -o $@ $<
 
 %.o: %.m
-	$(CC) -mmacosx-version-min=$(OSXVER) -c $(ARCHES) $(CFLAGS) $< -o $@
+	$(CC) -c -mmacosx-version-min=$(OSXVER) $(ARCHES) $(CFLAGS) $< -o $@
 
 $(TARGET): $(OBJECTS)
 	mkdir -p $(NAME).bundle/Contents/MacOS
@@ -44,7 +52,7 @@ $(INFO):
 	mkdir -p $(BUNDLE)/Contents
 	cp Info.plist $(BUNDLE)/Contents
 
-dmg:
+dmg: # UNTESTED
 	rm -rf $(NAME) $(NAME).dmg
 	mkdir $(NAME)
 	osacompile -o $(NAME)/Install.app Install.scpt
