@@ -1,0 +1,30 @@
+Todo list for MouseTerm.
+------------------------
+
+* Configuration
+** Add a config file (probably a plist) into the bundle that controls
+   the various settings.
+* Parsing
+** Maybe generalise the parser based on [[http://vt100.net/emu/vt500_parser.png]]
+** add a general method for consuming events so that they are not passed to
+   the Terminal VT100 parser.
+* Mouse options
+** support the other modes listed in [[http://invisible-island.net/xterm/ctlseqs/ctlseqs.html][XTerm escape reference]]
+   Specifically:
+   - CSI ? 9 h
+   - CSI ? 100 [0123] h
+    - 1003 (All-motion tracking) is probably unnecessary
+   and pass through button events and positions correctly.
+* Other features
+** Tidy up the code for handling custom tab titles
+*** try to figure out why setScriptCustomTitle forces a redraw, but setCustomTitle doesn't.
+** Look into the difficulty of supporting 256-colour mode
+*** probably very hard. Even TerminalColors only allows remapping of the standard ANSI set.
+** Add configurable logging support
+*** Compile time or run-time?
+*** Maybe support CSI ? 46 [hl] (DECSET Logging)
+**** Where to?
+* Compatibility
+** Get a copy of Snow Leopard, or find someone who does to test.
+** Try to merge Brodie's upstream fixes in again.
+
