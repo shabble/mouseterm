@@ -5,11 +5,11 @@ Fork Notes
 ----------
 
 This is a development fork of brodie/mouseterm, in which I hope to add a few
-more features.  So far it supports setting of tab titles via the standard
-Xterm escape code ("\e]2;<TITLE STRING>\007"), and incorporates a Ragel[12]-based
+more features.  So far it supports setting of tab titles via the standard Xterm
+escape code (`\e]2;<TITLE STRING>\007`), and incorporates a [Ragel][12]-based
 parser for extending the escape sequence parsing.
 
-Note that this is a massively unstable work in progress, caveat user, etc.
+**Note that this is a massively unstable work in progress, caveat user, etc.**
 
 Please submit any bug reports / feature suggestions into the GitHub Issues
 tracker, although I can't commit to making things work on Snow Leopard until

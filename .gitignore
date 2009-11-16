@@ -1,3 +1,4 @@
-/RegexKitLite.o
-/MouseTerm.bundle/Contents/MacOS/MouseTerm
-/MouseTerm.bundle/Contents/Info.plist
+/*.o
+/MouseTerm.bundle*
+/*~
+
